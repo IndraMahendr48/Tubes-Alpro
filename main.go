@@ -124,10 +124,9 @@ func editPengeluaran(daftarPengeluaran *[]Pengeluaran) {
 		return
 	}
 	// Minta data baru
-	kategoriBaru := bacaKategori("Masukkan kategori baru (Transportasi/Akomodasi/Makanan/Hiburan): ")
 	jumlahBaru := bacaJumlah()
 	// Perbarui data pengeluaran
-	(*daftarPengeluaran)[nomor-1] = Pengeluaran{Kategori: kategoriBaru, Jumlah: jumlahBaru}
+	(*daftarPengeluaran)[nomor-1].Jumlah = jumlahBaru
 	// Tandai bahwa data tidak lagi diurutkan
 	isSortedByCategory = 0
 	fmt.Println("Pengeluaran berhasil diedit!")
