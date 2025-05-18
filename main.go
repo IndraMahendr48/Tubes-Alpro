@@ -45,21 +45,56 @@ func login() bool {
 // Prosedur untuk menampilkan menu aplikasi
 func tampilkanMenu() {
 	fmt.Println("\n=== Aplikasi Pengelolaan Anggaran Traveling ===")
-	fmt.Println("1. Tambah Pengeluaran")
-	fmt.Println("2. Edit Pengeluaran")
-	fmt.Println("3. Hapus Pengeluaran")
-	fmt.Println("4. Cari Pengeluaran")
-	fmt.Println("5. Urutkan Pengeluaran")
-	fmt.Println("6. Lihat Laporan")
-	fmt.Println("7. Keluar")
+	fmt.Println("1. Update Pengeluaran")
+	fmt.Println("2. Cari Pengeluaran")
+	fmt.Println("3. Urutkan Pengeluaran")
+	fmt.Println("4. Lihat Laporan")
+	fmt.Println("5. Keluar")
 }
 
 // Fungsi untuk membaca pilihan menu dari pengguna
 func bacaPilihan() int {
-	fmt.Print("Pilih menu (1-7): ")
+	fmt.Print("Pilih menu (1-5): ")
 	var pilihan int
 	fmt.Scan(&pilihan)
 	return pilihan
+}
+
+// Fungsi untuk baca pilihan update pengeluaran dari pengguna
+func bacaUpdate() int {
+	fmt.Print("Pilih menu (1-4): ")
+	var pilihan int
+	fmt.Scan(&pilihan)
+	return pilihan
+}
+
+// Prosedur untuk menampilkan menu update pengeluaran
+func menuPengeluaran() {
+	fmt.Println("\n=== Update Pengeluaran ===")
+	fmt.Println("1. Tambah Pengeluaran")
+	fmt.Println("2. Edit Pengeluaran")
+	fmt.Println("3. Hapus Pengeluaran")
+	fmt.Println("4. Balik ke Menu Utama")
+}
+
+// Funsi untuk case apabila memilih menu pengeluaran
+func updatePengeluaran(daftarPengeluaran *[]Pengeluaran) {
+	menuPengeluaran()
+	for {
+
+		pilihan := bacaUpdate()
+
+		switch pilihan {
+		case 1:
+			tambahPengeluaran(daftarPengeluaran)
+		case 2:
+			editPengeluaran(daftarPengeluaran)
+		case 3:
+			hapusPengeluaran(daftarPengeluaran)
+		case 4:
+			return
+		}
+	}
 }
 
 // Fungsi untuk membaca nomor pengeluaran, mengembalikan -1 jika tidak valid
@@ -302,9 +337,9 @@ func tampilkanLaporan(daftarPengeluaran []Pengeluaran, anggaran float64) {
 	// Inisialisasi map untuk menyimpan total per kategori
 	totalPerKategori := map[string]float64{
 		"Transportasi": 0,
-		"Akomodasi":   0,
-		"Makanan":     0,
-		"Hiburan":     0,
+		"Akomodasi":    0,
+		"Makanan":      0,
+		"Hiburan":      0,
 	}
 	totalPengeluaran := 0.0
 	// Hitung total pengeluaran per kategori
@@ -367,18 +402,14 @@ func main() {
 
 		switch pilihan {
 		case 1:
-			tambahPengeluaran(&daftarPengeluaran)
+			updatePengeluaran(&daftarPengeluaran)
 		case 2:
-			editPengeluaran(&daftarPengeluaran)
-		case 3:
-			hapusPengeluaran(&daftarPengeluaran)
-		case 4:
 			cariPengeluaran(daftarPengeluaran)
-		case 5:
+		case 3:
 			kelolaPengurutan(&daftarPengeluaran)
-		case 6:
+		case 4:
 			tampilkanLaporan(daftarPengeluaran, anggaran)
-		case 7:
+		case 5:
 			fmt.Println("Terima kasih telah menggunakan aplikasi!")
 			return
 		default:
