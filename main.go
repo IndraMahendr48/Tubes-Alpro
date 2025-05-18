@@ -15,13 +15,11 @@ var isSortedByCategory int
 
 // Fungsi untuk autentikasi login pengguna, mengembalikan true jika berhasil
 func login() bool {
-	// Simulasi database pengguna dengan map (username: password)
 	pengguna := map[string]string{
 		"traveler1": "jalan123",
 		"traveler2": "libur456",
 	}
 
-	// Berikan 3 kesempatan login
 	for kesempatan := 3; kesempatan > 0; kesempatan-- {
 		fmt.Println("\n=== Login Aplikasi ===")
 		fmt.Print("Masukkan username: ")
@@ -31,7 +29,6 @@ func login() bool {
 		var password string
 		fmt.Scan(&password)
 
-		// Cek apakah username dan password cocok
 		if pass, ada := pengguna[username]; ada && pass == password {
 			fmt.Println("Login berhasil! Selamat datang,", username)
 			return true
@@ -45,54 +42,104 @@ func login() bool {
 // Prosedur untuk menampilkan menu aplikasi
 func tampilkanMenu() {
 	fmt.Println("\n=== Aplikasi Pengelolaan Anggaran Traveling ===")
-	fmt.Println("1. Tambah Pengeluaran")
-	fmt.Println("2. Edit Pengeluaran")
-	fmt.Println("3. Hapus Pengeluaran")
-	fmt.Println("4. Cari Pengeluaran")
-	fmt.Println("5. Urutkan Pengeluaran")
-	fmt.Println("6. Lihat Laporan")
-	fmt.Println("7. Keluar")
+	fmt.Println("1. Update Pengeluaran")
+	fmt.Println("2. Cari Pengeluaran")
+	fmt.Println("3. Urutkan Pengeluaran")
+	fmt.Println("4. Lihat Laporan")
+	fmt.Println("5. Keluar")
 }
 
 // Fungsi untuk membaca pilihan menu dari pengguna
 func bacaPilihan() int {
-	fmt.Print("Pilih menu (1-7): ")
 	var pilihan int
+	fmt.Print("Pilih menu (1-5): ")
 	fmt.Scan(&pilihan)
 	return pilihan
 }
 
+// Fungsi untuk membaca pilihan update pengeluaran dari pengguna
+func bacaUpdate() int {
+	var pilihan int
+	fmt.Print("Pilih menu (1-4): ")
+	fmt.Scan(&pilihan)
+	return pilihan
+}
+
+// Prosedur untuk menampilkan menu update pengeluaran
+func menuPengeluaran() {
+	fmt.Println("\n=== Update Pengeluaran ===")
+	fmt.Println("1. Tambah Pengeluaran")
+	fmt.Println("2. Edit Pengeluaran")
+	fmt.Println("3. Hapus Pengeluaran")
+	fmt.Println("4. Balik ke Menu Utama")
+}
+
+// Fungsi untuk case apabila memilih menu pengeluaran
+func updatePengeluaran(daftarPengeluaran *[]Pengeluaran) {
+	for {
+		menuPengeluaran()
+		pilihan := bacaUpdate()
+
+		switch pilihan {
+		case 1:
+			tambahPengeluaran(daftarPengeluaran)
+		case 2:
+			editPengeluaran(daftarPengeluaran)
+		case 3:
+			hapusPengeluaran(daftarPengeluaran)
+		case 4:
+			return
+		default:
+			fmt.Println("Pilihan tidak valid, silakan pilih lagi.")
+		}
+	}
+}
+
 // Fungsi untuk membaca nomor pengeluaran, mengembalikan -1 jika tidak valid
 func bacaNomorPengeluaran(panjangDaftar int) int {
-	fmt.Print("Masukkan nomor pengeluaran: ")
 	var nomor int
+	fmt.Print("Masukkan nomor pengeluaran: ")
 	fmt.Scan(&nomor)
 	if nomor < 1 || nomor > panjangDaftar {
 		fmt.Println("Nomor tidak valid.")
 		return -1
 	}
-	return nomor
+	return nomor - 1 // Adjust to 0-based index
 }
 
-// Fungsi untuk membaca kategori dari pengguna
+// Fungsi untuk membaca kategori dari pengguna dengan validasi
 func bacaKategori(prompt string) string {
-	fmt.Print(prompt)
+	validKategori := map[string]bool{"Transportasi": true, "Akomodasi": true, "Makanan": true, "Hiburan": true}
 	var kategori string
-	fmt.Scan(&kategori)
-	return kategori
+	for {
+		fmt.Print(prompt)
+		fmt.Scan(&kategori)
+		if validKategori[kategori] {
+			return kategori
+		}
+		fmt.Println("Kategori tidak valid. Gunakan: Transportasi, Akomodasi, Makanan, atau Hiburan.")
+	}
 }
 
 // Fungsi untuk membaca jumlah pengeluaran dari pengguna
 func bacaJumlah() float64 {
-	fmt.Print("Masukkan jumlah (Rp): ")
 	var jumlah float64
-	fmt.Scan(&jumlah)
-	return jumlah
+	for {
+		fmt.Print("Masukkan jumlah (Rp): ")
+		if fmt.Scan(&jumlah); jumlah >= 0 {
+			return jumlah
+		}
+		fmt.Println("Jumlah tidak valid. Masukkan nilai positif.")
+	}
 }
 
 // Prosedur untuk menampilkan daftar pengeluaran
 func tampilkanDaftarPengeluaran(daftarPengeluaran []Pengeluaran) {
 	fmt.Println("Daftar Pengeluaran:")
+	if len(daftarPengeluaran) == 0 {
+		fmt.Println("Tidak ada pengeluaran.")
+		return
+	}
 	for i, pengeluaran := range daftarPengeluaran {
 		fmt.Printf("%d. Kategori: %s, Jumlah: Rp %.2f\n", i+1, pengeluaran.Kategori, pengeluaran.Jumlah)
 	}
@@ -100,12 +147,9 @@ func tampilkanDaftarPengeluaran(daftarPengeluaran []Pengeluaran) {
 
 // Prosedur untuk menambahkan pengeluaran baru
 func tambahPengeluaran(daftarPengeluaran *[]Pengeluaran) {
-	// Minta kategori dan jumlah
 	kategori := bacaKategori("Masukkan kategori (Transportasi/Akomodasi/Makanan/Hiburan): ")
 	jumlah := bacaJumlah()
-	// Tambahkan data ke daftar pengeluaran
 	*daftarPengeluaran = append(*daftarPengeluaran, Pengeluaran{Kategori: kategori, Jumlah: jumlah})
-	// Tandai bahwa data tidak lagi diurutkan
 	isSortedByCategory = 0
 	fmt.Println("Pengeluaran berhasil ditambahkan!")
 }
@@ -116,18 +160,13 @@ func editPengeluaran(daftarPengeluaran *[]Pengeluaran) {
 		fmt.Println("Belum ada pengeluaran untuk diedit.")
 		return
 	}
-	// Tampilkan daftar pengeluaran
 	tampilkanDaftarPengeluaran(*daftarPengeluaran)
-	// Minta nomor pengeluaran
 	nomor := bacaNomorPengeluaran(len(*daftarPengeluaran))
 	if nomor == -1 {
 		return
 	}
-	// Minta data baru
 	jumlahBaru := bacaJumlah()
-	// Perbarui data pengeluaran
-	(*daftarPengeluaran)[nomor-1].Jumlah = jumlahBaru
-	// Tandai bahwa data tidak lagi diurutkan
+	(*daftarPengeluaran)[nomor].Jumlah = jumlahBaru
 	isSortedByCategory = 0
 	fmt.Println("Pengeluaran berhasil diedit!")
 }
@@ -138,16 +177,12 @@ func hapusPengeluaran(daftarPengeluaran *[]Pengeluaran) {
 		fmt.Println("Belum ada pengeluaran untuk dihapus.")
 		return
 	}
-	// Tampilkan daftar pengeluaran
 	tampilkanDaftarPengeluaran(*daftarPengeluaran)
-	// Minta nomor pengeluaran
 	nomor := bacaNomorPengeluaran(len(*daftarPengeluaran))
 	if nomor == -1 {
 		return
 	}
-	// Hapus pengeluaran dari daftar
-	*daftarPengeluaran = append((*daftarPengeluaran)[:nomor-1], (*daftarPengeluaran)[nomor:]...)
-	// Tandai bahwa data tidak lagi diurutkan
+	*daftarPengeluaran = append((*daftarPengeluaran)[:nomor], (*daftarPengeluaran)[nomor+1:]...)
 	isSortedByCategory = 0
 	fmt.Println("Pengeluaran berhasil dihapus!")
 }
@@ -155,7 +190,6 @@ func hapusPengeluaran(daftarPengeluaran *[]Pengeluaran) {
 // Fungsi Sequential Search untuk mencari semua entri dengan kategori tertentu
 func sequentialSearch(daftarPengeluaran []Pengeluaran, kategori string) []int {
 	var indeks []int
-	// Periksa setiap elemen secara berurutan
 	for i, pengeluaran := range daftarPengeluaran {
 		if pengeluaran.Kategori == kategori {
 			indeks = append(indeks, i)
@@ -169,7 +203,7 @@ func binarySearch(daftarPengeluaran []Pengeluaran, kategori string, aToZ bool) i
 	kiri, kanan := 0, len(daftarPengeluaran)-1
 	for kiri <= kanan {
 		tengah := (kiri + kanan) / 2
-		if (aToZ && daftarPengeluaran[tengah].Kategori == kategori) || (!aToZ && daftarPengeluaran[tengah].Kategori == kategori) {
+		if daftarPengeluaran[tengah].Kategori == kategori {
 			// Cari indeks pertama dengan kategori ini
 			for tengah > 0 && daftarPengeluaran[tengah-1].Kategori == kategori {
 				tengah--
@@ -191,30 +225,24 @@ func cariPengeluaran(daftarPengeluaran []Pengeluaran) {
 		fmt.Println("Belum ada pengeluaran untuk dicari.")
 		return
 	}
-	// Minta kategori yang akan dicari
 	kategori := bacaKategori("Masukkan kategori yang ingin dicari (Transportasi/Akomodasi/Makanan/Hiburan): ")
 	fmt.Println("Hasil Pencarian:")
 	ditemukan := false
 	var indeks []int
 
-	// Pilih metode pencarian berdasarkan status pengurutan
 	if isSortedByCategory == 1 || isSortedByCategory == 2 {
-		// Gunakan Binary Search jika data diurutkan berdasarkan kategori
 		fmt.Println("Menggunakan Binary Search (data telah diurutkan)")
 		indeksPertama := binarySearch(daftarPengeluaran, kategori, isSortedByCategory == 1)
 		if indeksPertama != -1 {
-			// Tambahkan semua entri dengan kategori yang sama
 			for i := indeksPertama; i < len(daftarPengeluaran) && daftarPengeluaran[i].Kategori == kategori; i++ {
 				indeks = append(indeks, i)
 			}
 		}
 	} else {
-		// Gunakan Sequential Search jika data belum diurutkan
 		fmt.Println("Menggunakan Sequential Search (data belum diurutkan)")
 		indeks = sequentialSearch(daftarPengeluaran, kategori)
 	}
 
-	// Tampilkan hasil pencarian
 	for _, i := range indeks {
 		fmt.Printf("%d. Kategori: %s, Jumlah: Rp %.2f\n", i+1, daftarPengeluaran[i].Kategori, daftarPengeluaran[i].Jumlah)
 		ditemukan = true
@@ -227,7 +255,6 @@ func cariPengeluaran(daftarPengeluaran []Pengeluaran) {
 // Prosedur Bubble Sort untuk mengurutkan daftar pengeluaran
 func urutkanPengeluaran(daftarPengeluaran *[]Pengeluaran, kriteria int) {
 	n := len(*daftarPengeluaran)
-	// Bubble Sort: bandingkan dan tukar elemen berpasangan
 	for i := 0; i < n-1; i++ {
 		for j := 0; j < n-i-1; j++ {
 			tukar := false
@@ -249,11 +276,17 @@ func urutkanPengeluaran(daftarPengeluaran *[]Pengeluaran, kriteria int) {
 					tukar = true
 				}
 			}
-			// Tukar elemen jika diperlukan
 			if tukar {
 				(*daftarPengeluaran)[j], (*daftarPengeluaran)[j+1] = (*daftarPengeluaran)[j+1], (*daftarPengeluaran)[j]
 			}
 		}
+	}
+	if kriteria == 3 {
+		isSortedByCategory = 1 // A-Z
+	} else if kriteria == 4 {
+		isSortedByCategory = 2 // Z-A
+	} else {
+		isSortedByCategory = 0 // Tidak diurutkan berdasarkan kategori
 	}
 }
 
@@ -263,31 +296,19 @@ func kelolaPengurutan(daftarPengeluaran *[]Pengeluaran) {
 		fmt.Println("Belum ada pengeluaran untuk diurutkan.")
 		return
 	}
-	// Tampilkan opsi pengurutan
 	fmt.Println("Pilih kriteria pengurutan:")
 	fmt.Println("1. Jumlah (Besar ke Kecil)")
 	fmt.Println("2. Jumlah (Kecil ke Besar)")
 	fmt.Println("3. Kategori (A-Z)")
 	fmt.Println("4. Kategori (Z-A)")
-	fmt.Print("Pilih (1-4): ")
 	var pilihanUrut int
 	fmt.Scan(&pilihanUrut)
 
-	// Validasi pilihan dan panggil fungsi pengurutan
 	if pilihanUrut < 1 || pilihanUrut > 4 {
 		fmt.Println("Pilihan tidak valid.")
 		return
 	}
 	urutkanPengeluaran(daftarPengeluaran, pilihanUrut)
-	// Perbarui status pengurutan
-	if pilihanUrut == 3 {
-		isSortedByCategory = 1 // A-Z
-	} else if pilihanUrut == 4 {
-		isSortedByCategory = 2 // Z-A
-	} else {
-		isSortedByCategory = 0 // Tidak diurutkan berdasarkan kategori
-	}
-	// Tampilkan hasil pengurutan
 	fmt.Println("Pengeluaran berhasil diurutkan!")
 	tampilkanDaftarPengeluaran(*daftarPengeluaran)
 }
@@ -299,37 +320,31 @@ func tampilkanLaporan(daftarPengeluaran []Pengeluaran, anggaran float64) {
 		return
 	}
 	fmt.Println("\n=== Laporan Pengeluaran ===")
-	// Inisialisasi map untuk menyimpan total per kategori
 	totalPerKategori := map[string]float64{
 		"Transportasi": 0,
-		"Akomodasi":   0,
-		"Makanan":     0,
-		"Hiburan":     0,
+		"Akomodasi":    0,
+		"Makanan":      0,
+		"Hiburan":      0,
 	}
-	totalPengeluaran := 0.0
-	// Hitung total pengeluaran per kategori
+	var totalPengeluaran float64
 	for _, pengeluaran := range daftarPengeluaran {
 		totalPerKategori[pengeluaran.Kategori] += pengeluaran.Jumlah
 		totalPengeluaran += pengeluaran.Jumlah
 	}
-	// Tampilkan rincian per kategori
 	fmt.Println("Rincian per Kategori:")
 	for kategori, jumlah := range totalPerKategori {
 		if jumlah > 0 {
 			fmt.Printf("- %s: Rp %.2f\n", kategori, jumlah)
 		}
 	}
-	// Tampilkan total pengeluaran dan anggaran
 	fmt.Printf("Total Pengeluaran: Rp %.2f\n", totalPengeluaran)
 	fmt.Printf("Total Anggaran: Rp %.2f\n", anggaran)
-	// Hitung selisih anggaran
 	selisih := anggaran - totalPengeluaran
 	if selisih > 0 {
 		fmt.Printf("Sisa Anggaran: Rp %.2f\n", selisih)
-	} else {
+	} else if selisih < 0 {
 		fmt.Printf("Kelebihan Pengeluaran: Rp %.2f\n", -selisih)
 	}
-	// Berikan rekomendasi penghematan
 	fmt.Println("Rekomendasi Penghematan:")
 	if totalPengeluaran > anggaran {
 		fmt.Println("- Kurangi pengeluaran pada kategori dengan jumlah terbesar.")
@@ -347,20 +362,15 @@ func tampilkanLaporan(daftarPengeluaran []Pengeluaran, anggaran float64) {
 }
 
 func main() {
-	// Meminta pengguna untuk login
 	if !login() {
 		return
 	}
 
-	// Deklarasi variabel untuk menyimpan daftar pengeluaran dan anggaran awal
 	var daftarPengeluaran []Pengeluaran
 	var anggaran float64
-
-	// Meminta pengguna memasukkan anggaran awal
 	fmt.Print("Masukkan anggaran awal (Rp): ")
 	fmt.Scan(&anggaran)
 
-	// Loop utama untuk menampilkan menu dan memproses pilihan
 	for {
 <<<<<<< Updated upstream
 		tampilkanMenu()
@@ -397,18 +407,14 @@ func main() {
 
 		switch pilihan {
 		case 1:
-			tambahPengeluaran(&daftarPengeluaran)
+			updatePengeluaran(&daftarPengeluaran)
 		case 2:
-			editPengeluaran(&daftarPengeluaran)
-		case 3:
-			hapusPengeluaran(&daftarPengeluaran)
-		case 4:
 			cariPengeluaran(daftarPengeluaran)
-		case 5:
+		case 3:
 			kelolaPengurutan(&daftarPengeluaran)
-		case 6:
+		case 4:
 			tampilkanLaporan(daftarPengeluaran, anggaran)
-		case 7:
+		case 5:
 			fmt.Println("Terima kasih telah menggunakan aplikasi!")
 			return
 		default:
