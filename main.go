@@ -71,7 +71,7 @@ func bacaUpdate() int {
 // Prosedur untuk menampilkan menu update pengeluaran
 func menuPengeluaran() {
 	fmt.Println("\n=== Update Pengeluaran ===")
-	fmt.Println("1. Tambah Pengeluaran")
+	fmt.Println("1. Tambah Pengeluaran") 
 	fmt.Println("2. Edit Pengeluaran")
 	fmt.Println("3. Hapus Pengeluaran")
 	fmt.Println("4. Balik ke Menu Utama")
