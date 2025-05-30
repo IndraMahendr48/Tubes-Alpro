@@ -40,7 +40,6 @@ func login() bool {
 		for i := 0; i < 2; i++ {
 			if username == pengguna[i] && password == kataSandi[i] {
 				berhasil = true
-				break
 			}
 		}
 		if berhasil {
@@ -115,12 +114,15 @@ func bacaJumlah() float64 {
 	var jumlah float64
 	for {
 		fmt.Print("Masukkan jumlah (Rp): ")
-		if _, err := fmt.Scan(&jumlah); err == nil && jumlah >= 0 {
+		// Ambil input jumlah dari pengguna
+		fmt.Scan(&jumlah)
+		// Periksa apakah jumlah lebih besar atau sama dengan 0
+		if jumlah >= 0 {
 			return jumlah
 		}
 		fmt.Println("Jumlah tidak valid. Masukkan nilai positif.")
 		var dummy string
-		fmt.Scan(&dummy) // Clear invalid input
+		fmt.Scan(&dummy) // Bersihkan input yang salah
 	}
 }
 
@@ -128,7 +130,10 @@ func bacaJumlah() float64 {
 func bacaNomorPengeluaran(n int) int {
 	var nomor int
 	fmt.Print("Masukkan nomor pengeluaran: ")
-	if _, err := fmt.Scan(&nomor); err != nil || nomor < 1 || nomor > n {
+	// Ambil input nomor dari pengguna
+	fmt.Scan(&nomor)
+	// Periksa apakah nomor valid (antara 1 dan n)
+	if nomor < 1 || nomor > n {
 		fmt.Println("Nomor tidak valid.")
 		return -1
 	}
@@ -211,7 +216,7 @@ func updatePengeluaran(daftar *DaftarPengeluaran) {
 		} else if pilihan == 3 {
 			hapusPengeluaran(daftar)
 		} else if pilihan == 4 {
-			break
+			return
 		} else {
 			fmt.Println("Pilihan tidak valid, silakan pilih lagi.")
 		}
@@ -452,14 +457,20 @@ func main() {
 
 	var daftar DaftarPengeluaran
 	var anggaran float64
-	for {
+	var inputValid bool
+	for inputValid == false {
 		fmt.Print("Masukkan anggaran awal (Rp): ")
-		if _, err := fmt.Scan(&anggaran); err == nil && anggaran >= 0 {
-			break
+		// Ambil input anggaran dari pengguna
+		fmt.Scan(&anggaran)
+		// Periksa apakah anggaran adalah angka positif atau nol
+		if anggaran >= 0 {
+			inputValid = true // Input valid, keluar dari loop
+		} else {
+			fmt.Println("Anggaran tidak valid. Masukkan nilai positif.")
+			var dummy string
+			fmt.Scan(&dummy) // Bersihkan input yang salah
+			inputValid = false
 		}
-		fmt.Println("Anggaran tidak valid. Masukkan nilai positif.")
-		var dummy string
-		fmt.Scan(&dummy) // Clear invalid input
 	}
 
 	for {
