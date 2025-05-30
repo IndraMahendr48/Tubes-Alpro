@@ -24,10 +24,8 @@ var isSortedByCategory int
 
 // Fungsi untuk autentikasi login pengguna, mengembalikan true jika berhasil
 func login() bool {
-	pengguna := map[string]string{
-		"traveler1": "jalan123",
-		"traveler2": "libur456",
-	}
+	var pengguna [2]string = [2]string{"traveler1", "traveler2"}
+	var kataSandi [2]string = [2]string{"jalan123", "libur456"}
 
 	for kesempatan := 3; kesempatan > 0; kesempatan-- {
 		fmt.Println("\n=== Login Aplikasi ===")
@@ -38,7 +36,14 @@ func login() bool {
 		var password string
 		fmt.Scan(&password)
 
-		if pass, ada := pengguna[username]; ada && pass == password {
+		berhasil := false
+		for i := 0; i < 2; i++ {
+			if username == pengguna[i] && password == kataSandi[i] {
+				berhasil = true
+				break
+			}
+		}
+		if berhasil {
 			fmt.Println("Login berhasil! Selamat datang,", username)
 			return true
 		}
@@ -86,13 +91,10 @@ func bacaUpdate() int {
 
 // Fungsi untuk validasi kategori
 func isValidKategori(kategori string) bool {
-	validKategori := map[string]bool{
-		"Transportasi": true,
-		"Akomodasi":   true,
-		"Makanan":     true,
-		"Hiburan":     true,
+	if kategori == "Transportasi" || kategori == "Akomodasi" || kategori == "Makanan" || kategori == "Hiburan" {
+		return true
 	}
-	return validKategori[kategori]
+	return false
 }
 
 // Fungsi untuk membaca kategori dari pengguna dengan validasi
@@ -202,50 +204,18 @@ func updatePengeluaran(daftar *DaftarPengeluaran) {
 		menuPengeluaran()
 		pilihan := bacaUpdate()
 
-		switch pilihan {
-		case 1:
+		if pilihan == 1 {
 			tambahPengeluaran(daftar)
-		case 2:
+		} else if pilihan == 2 {
 			editPengeluaran(daftar)
-		case 3:
+		} else if pilihan == 3 {
 			hapusPengeluaran(daftar)
-		case 4:
-			return
-		default:
+		} else if pilihan == 4 {
+			break
+		} else {
 			fmt.Println("Pilihan tidak valid, silakan pilih lagi.")
 		}
 	}
-}
-
-// Fungsi Sequential Search untuk mencari semua entri dengan kategori tertentu
-func sequentialSearch(daftar DaftarPengeluaran, kategori string) []int {
-	var indeks []int
-	for i := 0; i < daftar.N; i++ {
-		if daftar.Data[i].Kategori == kategori {
-			indeks = append(indeks, i)
-		}
-	}
-	return indeks
-}
-
-// Fungsi Binary Search untuk mencari indeks pertama dengan kategori tertentu
-func binarySearch(daftar DaftarPengeluaran, kategori string, aToZ bool) int {
-	kiri, kanan := 0, daftar.N-1
-	for kiri <= kanan {
-		tengah := (kiri + kanan) / 2
-		if daftar.Data[tengah].Kategori == kategori {
-			for tengah > 0 && daftar.Data[tengah-1].Kategori == kategori {
-				tengah--
-			}
-			return tengah
-		}
-		if (aToZ && daftar.Data[tengah].Kategori < kategori) || (!aToZ && daftar.Data[tengah].Kategori > kategori) {
-			kiri = tengah + 1
-		} else {
-			kanan = tengah - 1
-		}
-	}
-	return -1
 }
 
 // Prosedur untuk mencari pengeluaran berdasarkan kategori
@@ -279,6 +249,45 @@ func cariPengeluaran(daftar DaftarPengeluaran) {
 	if !ditemukan {
 		fmt.Println("Tidak ada pengeluaran untuk kategori tersebut.")
 	}
+}
+
+// Fungsi Sequential Search untuk mencari semua entri dengan kategori tertentu
+func sequentialSearch(daftar DaftarPengeluaran, kategori string) []int {
+	var indeks []int
+	for i := 0; i < daftar.N; i++ {
+		if daftar.Data[i].Kategori == kategori {
+			indeks = append(indeks, i)
+		}
+	}
+	return indeks
+}
+
+// Fungsi Binary Search untuk mencari indeks pertama dengan kategori tertentu
+func binarySearch(daftar DaftarPengeluaran, kategori string, aToZ bool) int {
+	kiri := 0               // Mulai dari indeks paling kiri
+	kanan := daftar.N - 1   // Mulai dari indeks paling kanan
+
+	for kiri <= kanan {     // Lanjutkan selama kiri tidak melewati kanan
+		tengah := (kiri + kanan) / 2  // Cari tengah daftar
+
+		// Periksa apakah kategori di tengah cocok
+		if daftar.Data[tengah].Kategori == kategori {
+			// Cari ke kiri untuk menemukan indeks pertama
+			for tengah > 0 && daftar.Data[tengah-1].Kategori == kategori {
+				tengah--
+			}
+			return tengah
+		}
+
+		// Tentukan arah pencarian berdasarkan urutan (A-Z atau Z-A)
+		if (aToZ && daftar.Data[tengah].Kategori < kategori) || (!aToZ && daftar.Data[tengah].Kategori > kategori) {
+			kiri = tengah + 1  // Pindah ke kanan
+		} else {
+			kanan = tengah - 1 // Pindah ke kiri
+		}
+	}
+
+	return -1  // Kembali -1 jika tidak ditemukan
 }
 
 // Prosedur untuk mencari pengeluaran ekstrem (terbesar dan terkecil)
@@ -375,22 +384,32 @@ func tampilkanLaporan(daftar DaftarPengeluaran, anggaran float64) {
 		return
 	}
 	fmt.Println("\n=== Laporan Pengeluaran ===")
-	totalPerKategori := map[string]float64{
-		"Transportasi": 0,
-		"Akomodasi":    0,
-		"Makanan":      0,
-		"Hiburan":      0,
-	}
+	var totalTransportasi, totalAkomodasi, totalMakanan, totalHiburan float64
 	var totalPengeluaran float64
 	for i := 0; i < daftar.N; i++ {
-		totalPerKategori[daftar.Data[i].Kategori] += daftar.Data[i].Jumlah
+		if daftar.Data[i].Kategori == "Transportasi" {
+			totalTransportasi += daftar.Data[i].Jumlah
+		} else if daftar.Data[i].Kategori == "Akomodasi" {
+			totalAkomodasi += daftar.Data[i].Jumlah
+		} else if daftar.Data[i].Kategori == "Makanan" {
+			totalMakanan += daftar.Data[i].Jumlah
+		} else if daftar.Data[i].Kategori == "Hiburan" {
+			totalHiburan += daftar.Data[i].Jumlah
+		}
 		totalPengeluaran += daftar.Data[i].Jumlah
 	}
 	fmt.Println("Rincian per Kategori:")
-	for kategori, jumlah := range totalPerKategori {
-		if jumlah > 0 {
-			fmt.Printf("- %s: Rp %.2f\n", kategori, jumlah)
-		}
+	if totalTransportasi > 0 {
+		fmt.Printf("- Transportasi: Rp %.2f\n", totalTransportasi)
+	}
+	if totalAkomodasi > 0 {
+		fmt.Printf("- Akomodasi: Rp %.2f\n", totalAkomodasi)
+	}
+	if totalMakanan > 0 {
+		fmt.Printf("- Makanan: Rp %.2f\n", totalMakanan)
+	}
+	if totalHiburan > 0 {
+		fmt.Printf("- Hiburan: Rp %.2f\n", totalHiburan)
 	}
 	fmt.Printf("Total Pengeluaran: Rp %.2f\n", totalPengeluaran)
 	fmt.Printf("Total Anggaran: Rp %.2f\n", anggaran)
@@ -402,15 +421,25 @@ func tampilkanLaporan(daftar DaftarPengeluaran, anggaran float64) {
 	}
 	fmt.Println("Rekomendasi Penghematan:")
 	if totalPengeluaran > anggaran {
-		fmt.Println("- Kurangi pengeluaran pada kategori dengan jumlah terbesar.")
-		kategoriTerbesar, jumlahTerbesar := "", 0.0
-		for kategori, jumlah := range totalPerKategori {
-			if jumlah > jumlahTerbesar {
-				jumlahTerbesar = jumlah
-				kategoriTerbesar = kategori
-			}
+		var kategoriTerbesar string
+		var jumlahTerbesar float64
+		if totalTransportasi > jumlahTerbesar {
+			jumlahTerbesar = totalTransportasi
+			kategoriTerbesar = "Transportasi"
 		}
-		fmt.Printf("- Fokus hemat pada %s (Rp %.2f).\n", kategoriTerbesar, jumlahTerbesar)
+		if totalAkomodasi > jumlahTerbesar {
+			jumlahTerbesar = totalAkomodasi
+			kategoriTerbesar = "Akomodasi"
+		}
+		if totalMakanan > jumlahTerbesar {
+			jumlahTerbesar = totalMakanan
+			kategoriTerbesar = "Makanan"
+		}
+		if totalHiburan > jumlahTerbesar {
+			jumlahTerbesar = totalHiburan
+			kategoriTerbesar = "Hiburan"
+		}
+		fmt.Printf("- Kurangi pengeluaran pada %s (Rp %.2f).\n", kategoriTerbesar, jumlahTerbesar)
 	} else {
 		fmt.Println("- Pertahankan pola pengeluaran Anda, masih ada sisa anggaran.")
 	}
@@ -437,21 +466,20 @@ func main() {
 		tampilkanMenu()
 		pilihan := bacaPilihan()
 
-		switch pilihan {
-		case 1:
+		if pilihan == 1 {
 			updatePengeluaran(&daftar)
-		case 2:
+		} else if pilihan == 2 {
 			cariPengeluaran(daftar)
-		case 3:
+		} else if pilihan == 3 {
 			kelolaPengurutan(&daftar)
-		case 4:
+		} else if pilihan == 4 {
 			tampilkanLaporan(daftar, anggaran)
-		case 5:
+		} else if pilihan == 5 {
 			cariPengeluaranEkstrem(daftar)
-		case 6:
+		} else if pilihan == 6 {
 			fmt.Println("Terima kasih telah menggunakan aplikasi!")
 			return
-		default:
+		} else {
 			fmt.Println("Pilihan tidak valid, silakan pilih lagi.")
 		}
 	}
